@@ -1,8 +1,15 @@
 import { Picker } from "@react-native-picker/picker"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from "react-native"
+import { adicionaNota } from "../services/Notas"
 
-export default function NotaEditor({mostraNotas}) {
+export default function NotaEditor({mostraNotas, notaSelecionada}) {
+  useEffect(() => {
+    if(notaSelecionada.id) {
+      preencheModal()
+      setModalVisivel(true)
+    }
+  }, [notaSelecionada])
 
   const [titulo, setTitulo] = useState("")
   const [categoria, setCategoria] = useState("Pessoal")
@@ -11,11 +18,18 @@ export default function NotaEditor({mostraNotas}) {
 
   async function salvaNota() {
     const umaNota = {
-      id: "1",
+      titulo: titulo,
+      categoria: categoria,
       texto: texto,
     }
-    console.log(umaNota)
+    await adicionaNota(umaNota)
     mostraNotas()
+  }
+
+  function preencheModal() {
+    setTitulo(notaSelecionada.titulo)
+    setCategoria(notaSelecionada.categoria)
+    setTexto(notaSelecionada.texto)
   }
 
   return(

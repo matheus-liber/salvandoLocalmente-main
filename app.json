@@ -7,6 +7,7 @@
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
+      "sdkVersion": "48.0.0",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
