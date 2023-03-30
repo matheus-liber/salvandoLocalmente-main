@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react"
-import { SafeAreaView, StatusBar, StyleSheet, FlatList } from "react-native"
+import { SafeAreaView, StatusBar, StyleSheet, FlatList, View } from "react-native"
 import NotaEditor from "./src/componentes/NotaEditor"
 import { Nota } from "./src/componentes/Nota"
-import { buscaNotas, criaTabela } from "./src/services/Notas"
+import { buscaNotas, criaTabela, filtraPorCategoria } from "./src/services/Notas"
+import { Picker } from "@react-native-picker/picker"
 
 export default function App() {
-  
   useEffect(() => {
     criaTabela()
     mostraNotas()
@@ -13,11 +13,20 @@ export default function App() {
 
   const [notaSelecionada, setNotaSelecionada] = useState({})
   const [notas, setNotas] = useState([])
+  const [categoria, setCategoria] = useState("Todos")
 
   async function mostraNotas() {
     const todasNotas = await buscaNotas()
     setNotas(todasNotas)
     console.log(todasNotas)
+  }
+  async function filtraLista(categoriaSelecionada) {
+    setCategoria(categoriaSelecionada)
+    if(categoriaSelecionada == "Todos") {
+      mostraNotas()
+    } else {
+      setNotas(await filtraPorCategoria(categoriaSelecionada))
+    }
   }
 
   return (
@@ -26,8 +35,18 @@ export default function App() {
         data={notas}
         renderItem={(nota) => <Nota {...nota} setNotaSelecionada={setNotaSelecionada} />}
         keyExtractor={nota => nota.id}
-      />
-      <NotaEditor mostraNotas={mostraNotas} notaSelecionada={notaSelecionada} />
+        ListHeaderComponent={() => {return (
+          <View style={estilos.picker}>
+            <Picker selectedValue={categoria} onValueChange={(categoriaSelecionada) => filtraLista(categoriaSelecionada)}>
+              <Picker.Item label="Todos" value="Todos"/>
+              <Picker.Item label="Pessoal" value="Pessoal"/>
+              <Picker.Item label="Trabalho" value="Trabalho"/>
+              <Picker.Item label="Outros" value="Outros"/>
+            </Picker>
+          </View>
+        )}}
+      />  
+      <NotaEditor mostraNotas={mostraNotas} notaSelecionada={notaSelecionada} setNotaSelecionada={setNotaSelecionada}/>
       <StatusBar/>
     </SafeAreaView>
   )
